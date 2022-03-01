@@ -14,7 +14,7 @@ mongoose.connect(process.env.DB_URL, {
 }, () => console.log('connected to db'));
 
 // middleware
-app.use(express.json())
+app.use(express.json());
 
 // routes
 app.use('/api/user', authRoute);
