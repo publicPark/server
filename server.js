@@ -8,6 +8,7 @@ require('dotenv').config({ path: path.resolve(__dirname, envpath) });
 
 // import routes
 const authRoute = require('./routes/auth');
+const userRoute = require('./routes/user');
 
 // connct to db
 mongoose.connect(process.env.DB_URL, {
@@ -17,7 +18,8 @@ mongoose.connect(process.env.DB_URL, {
 app.use(express.json());
 
 // routes
-app.use('/api/user', authRoute);
+app.use('/api/auth', authRoute);
+app.use('/api/user', userRoute);
 
 app.listen(process.env.PORT,
   () => console.log(process.env.NODE_ENV + ' server starts at', process.env.PORT)

@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const User = require('../model/User');
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { registerValidation, loginValidation } = require('../modules/validation');
 
@@ -48,7 +49,9 @@ router.post('/login', async (req, res) => {
   if (!validPass) return res.status(400).send('Invalid password');
   // ㅋㅋㅋ 근데 이렇게 한건 뭐가 틀렸는지 내가 지금 알아야 돼. 원래 똑같이 해야 돼
 
-  res.send('Logged in');
+  // create and assign a token
+  const accessToken = jwt.sign({ _id: user.id }, process.env.TOKEN_SECRET);
+  res.header('auth-token', accessToken).send(accessToken);
 });
 
 module.exports = router;
