@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const verify = require('./verifyToken');
+const verify = require('../middleware/verifyToken');
 
 router.get('/my', verify, (req, res) => {
   // res.send(req.user);

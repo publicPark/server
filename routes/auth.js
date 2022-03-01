@@ -1,8 +1,9 @@
 const router = require('express').Router();
 const User = require('../model/User');
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const { registerValidation, loginValidation } = require('../modules/validation');
+const { generateAccessToken, generateRefreshToken } = require('../middleware/generateToken');
 
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
@@ -33,6 +34,8 @@ router.post('/register', async (req, res) => {
   }
 });
 
+let refreshTokens = []; // test
+
 // LOGIN
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
@@ -50,8 +53,38 @@ router.post('/login', async (req, res) => {
   // ㅋㅋㅋ 근데 이렇게 한건 뭐가 틀렸는지 내가 지금 알아야 돼. 원래 똑같이 해야 돼
 
   // create and assign a token
-  const accessToken = jwt.sign({ _id: user.id }, process.env.TOKEN_SECRET);
-  res.header('auth-token', accessToken).send(accessToken);
+  const accessToken = generateAccessToken({id:user._id});
+  const refreshToken = generateRefreshToken({ id: user._id });
+  
+  // 실제로는 db에 토큰, user id 저장하자
+  refreshTokens.push(refreshToken);
+
+  // 이미 있던 중복 과거 리프레쉬 토큰 지워
+
+  res.json({ accessToken, refreshToken });
+});
+
+// REFRESH
+router.post('/token', async (req, res) => {
+  const refreshToken = req.body.token;
+  if(refreshToken == null) return res.sendStatus(401);
+  if (!refreshTokens.includes(refreshToken)) { // 이게 배열도 됐어?
+    console.log("list has not the refreshToken");
+    return res.sendStatus(403);
+  }
+
+  try {
+    const user = await jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    const accessToken = generateAccessToken({id:user._id});
+    res.send(accessToken);
+  } catch (err) {
+    return res.sendStatus(403);
+  }
+});
+
+router.delete('/logout', (req, res) => {
+  refreshTokens = refreshTokens.filter(token => token !== req.body.token); // 리스트에서 filter로 이렇게 빼.. WOW..
+  res.sendStatus(204);
 });
 
 module.exports = router;

@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon server.js",
-    "dev": "NODE_ENV=test nodemon server.js"
+    "start_auth": "nodemon authServer.js",
+    "dev": "NODE_ENV=test nodemon server.js",
+    "dev_auth": "NODE_ENV=test nodemon authServer.js"
   },
   "keywords": [],
   "author": "",
